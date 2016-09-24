@@ -2,12 +2,20 @@ module.exports = update;
 
 function update(state, commands) {
   var newState = clone(state);
-  Object.keys(commands).forEach(function(key) {
+  return evaluateCommands(newState, commands);
+}
+
+function evaluateCommands(state, commands) {
+  var keys = Object.keys(commands);
+
+  for (var i = 0; i < keys.length; i++) {
+    var key = keys[i];
     if (availableCommands.hasOwnProperty(key)) {
-      newState = availableCommands[key](newState, commands[key]);
+      return availableCommands[key](state, commands[key]);;
     }
-  });
-  return newState;
+    state[key] = evaluateCommands(state[key], commands[key]);
+    return state;
+  }
 }
 
 // Available commands for object/array manipulation
@@ -27,9 +35,11 @@ var availableCommands = {
     return state;
   },
   $merge: function(state, args) {},
-  $set: function(state, args) {},
+  $set: function(state, args) {
+    return args;
+  },
   $apply: function(state, args) {
-    return args.apply(state, [state]);
+    return args.apply(state, Array.isArray(state) ? state : [state]);
   }
 };
 
