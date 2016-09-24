@@ -1,28 +1,17 @@
 module.exports = update;
 
 function update(state, commands) {
-  if (Array.isArray(state)) {
-    return updateArray(state, commands);
-  }
-  return updateObject(state, commands);
-}
-
-function updateArray(state, commands) {
-  // Use slice to create a clone of an array
-  var newState = state.slice(0);
-  // Under the assumption that we don't support nested operations (like $set)
-  // within the elements of an array, so we can trust the keys in the command
-  // object to be actual array commands. Otherwise, we'll throw an exception.
+  var newState = clone(state);
   Object.keys(commands).forEach(function(key) {
-    if (!arrayCommands.hasOwnProperty(key)) {
-      throw "Command doesn't exist for arrays - " + key;
+    if (commands.hasOwnProperty(key)) {
+      availableCommands[key](newState, commands[key]);
     }
-    arrayCommands[key](newState, commands[key]);
   });
   return newState;
 }
 
-var arrayCommands = {
+// Available commands for object/array manipulation
+var availableCommands = {
   $push: function(state, args) {
     state.push.apply(state, args);
   },
@@ -33,16 +22,34 @@ var arrayCommands = {
     args.forEach(function(spliceArgs) {
       state.splice.apply(state, spliceArgs);
     });
-  }
+  },
+  $merge: function(state, args) {},
+  $set: function(state, args) {},
+  $apply: function(state, args) {}
 };
 
-function updateObject(state, commands) {
-
-  return {};
+// Clone an object or an array according to initial state's type
+function clone(state) {
+  if (Array.isArray(state)) {
+    return cloneArray(state);
+  } else if (state && typeof state === 'object') {
+    return cloneObject(state);
+  }
+  // It's not an object or an array, so it's a primitive and
+  // we don't need to clone, since it isn't passed by reference.
+  return state;
 }
 
-var objectCommands = {
-  $merge: function() {},
-  $set: function() {},
-  $apply: function() {}
-};
+// Create a shallow clone of an array
+function cloneArray(state) {
+  return state.slice(0);
+}
+
+// Create a shallow clone of an object
+function cloneObject(state) {
+  var newState = {};
+  Object.keys(state).forEach(function(key) {
+    newState[key] = state[key];
+  });
+  return newState;
+}
