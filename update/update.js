@@ -1,16 +1,28 @@
 module.exports = update;
 
-function update(state, commands) {
-  var keys = Object.keys(commands);
+function update(_state, commands) {
+  // Make a shallow clone of state so we don't make changes to the
+  // object that was passed in
+  var state = clone(_state);
 
+  // Iterate over each of the keys in commands
+  var keys = Object.keys(commands);
   for (var i = 0; i < keys.length; i++) {
     var key = keys[i];
     if (availableCommands.hasOwnProperty(key)) {
+      // If the key is a valid command, execute that command.
+      // Note since that we return the result of this, I am
+      // assuming that only one command could live at each
+      // level in the hierarchy of the commands object.
       return availableCommands[key](state, commands[key]);;
     }
-    state[key] = evaluateCommands(state[key], commands[key]);
-    return state;
+    // If the key in the command object wasn't a valid
+    // command, recursively run the update command
+    // on a subset of the state and command objects.
+    state[key] = update(state[key], commands[key]);
   }
+  // Return the new state object
+  return state;
 }
 
 // Available commands for object/array manipulation
@@ -24,6 +36,8 @@ var availableCommands = {
     return state;
   },
   $splice: function(state, args) {
+    // This command takes an array of splicing arguments, so
+    // we need to iterate through it and apply them.
     args.forEach(function(spliceArgs) {
       state.splice.apply(state, spliceArgs);
     });
