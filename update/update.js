@@ -3,8 +3,8 @@ module.exports = update;
 function update(state, commands) {
   var newState = clone(state);
   Object.keys(commands).forEach(function(key) {
-    if (commands.hasOwnProperty(key)) {
-      availableCommands[key](newState, commands[key]);
+    if (availableCommands.hasOwnProperty(key)) {
+      newState = availableCommands[key](newState, commands[key]);
     }
   });
   return newState;
@@ -14,18 +14,23 @@ function update(state, commands) {
 var availableCommands = {
   $push: function(state, args) {
     state.push.apply(state, args);
+    return state;
   },
   $unshift: function(state, args) {
     state.unshift.apply(state, args);
+    return state;
   },
   $splice: function(state, args) {
     args.forEach(function(spliceArgs) {
       state.splice.apply(state, spliceArgs);
     });
+    return state;
   },
   $merge: function(state, args) {},
   $set: function(state, args) {},
-  $apply: function(state, args) {}
+  $apply: function(state, args) {
+    return args.apply(state, [state]);
+  }
 };
 
 // Clone an object or an array according to initial state's type
