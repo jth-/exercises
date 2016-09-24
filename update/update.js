@@ -23,11 +23,17 @@ function updateArray(state, commands) {
 }
 
 var arrayCommands = {
-  $push: function(state, values) {
-    state.push.apply(state, values);
+  $push: function(state, args) {
+    state.push.apply(state, args);
   },
-  $unshift: function() {},
-  $splice: function() {}
+  $unshift: function(state, args) {
+    state.unshift.apply(state, args);
+  },
+  $splice: function(state, args) {
+    args.forEach(function(spliceArgs) {
+      state.splice.apply(state, spliceArgs);
+    });
+  }
 };
 
 function updateObject(state, commands) {
