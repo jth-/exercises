@@ -1,11 +1,6 @@
 module.exports = update;
 
 function update(state, commands) {
-  var newState = clone(state);
-  return evaluateCommands(newState, commands);
-}
-
-function evaluateCommands(state, commands) {
   var keys = Object.keys(commands);
 
   for (var i = 0; i < keys.length; i++) {
@@ -34,7 +29,12 @@ var availableCommands = {
     });
     return state;
   },
-  $merge: function(state, args) {},
+  $merge: function(state, args) {
+    Object.keys(args).forEach(function(key) {
+      state[key] = args[key];
+    });
+    return state;
+  },
   $set: function(state, args) {
     return args;
   },
