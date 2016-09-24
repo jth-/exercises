@@ -1,5 +1,5 @@
 var assert = require('assert');
-var update = require('./');
+var update = require('./update');
 
 describe('update', function() {
 
