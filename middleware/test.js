@@ -1,5 +1,5 @@
 var assert = require('assert');
-var Middleware = require('./');
+var Middleware = require('./middleware');
 
 describe('middleware', function() {
   it('works with a single instance', function(done) {
