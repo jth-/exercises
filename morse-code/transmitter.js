@@ -1,7 +1,16 @@
 module.exports = function(options, callback) {
   var toggleTimes = getToggleTimes(options.message, options.codes);
-  console.log(toggleTimes);
-  return callback();
+  var index = 0;
+  next();
+  function next() {
+    if (!toggleTimes[index]) {
+      return callback();
+    }
+    options.toggle();
+    var waitFor = toggleTimes[index];
+    index++;
+    options.timeouter(next, waitFor);
+  }
 };
 
 function getToggleTimes(message, codes) {
@@ -16,14 +25,14 @@ function getToggleTimes(message, codes) {
       // Iterate through each morse code symbol in the encoded character
       // and do a lookup on it's corresponding toggleTimes, then push
       // that to the whole message toggle times array
-      times.push(letterToToggles[encoded[j]]);
+      times.push.apply(times, letterToToggles[encoded[j]]);
     }
   }
   return times;
 }
 
 var letterToToggles = {
-  '.': 1,
-  '-': 3,
-  ' ': 6
+  '.': [1, 1],
+  '-': [3, 1],
+  ' ': [7]
 };
