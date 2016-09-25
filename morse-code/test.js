@@ -1,6 +1,6 @@
 var assert = require('assert');
 var sinon = require('sinon');
-var transmitter = require('./');
+var transmitter = require('./transmitter');
 var codes = require('./codes');
 
 describe('transmitter', function() {
